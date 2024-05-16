@@ -22,15 +22,11 @@ def shuffle_deck(deck):
 
 # deal card(s)
 
-def deal(deck, number_of_cards):
-
-    cards = []
+def deal(deck, player_hand, number_of_cards):
     
     for i in range(number_of_cards):
-        cards.append(deck[len(deck) - 1])
+        player_hand.append(deck[len(deck) - 1])
         deck.pop(len(deck) - 1)
-
-    return cards
     
 # calculate hand value
 
@@ -94,19 +90,13 @@ def hand_value(hand):
 # test(multi-line comment out)   
 
 """
-deck = generate_deck()
-shuffle_deck(deck)
+def test():
+    deck = generate_deck()
+    shuffle_deck(deck)
+    player_hand = []
+    deal(deck, player_hand, 2)
+    print(player_hand)
+    print(hand_value(player_hand))
 
-player_hand = []
-
-delt_cards = deal(deck, 2)
-
-for i in range(len(delt_cards)):
-    player_hand.append(delt_cards[i])
-
-print(player_hand)
-print()
-print()
-print(hand_value(player_hand))
+test()
 """
-
