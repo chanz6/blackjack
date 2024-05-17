@@ -1,102 +1,136 @@
 import random
 
-# generates deck 
-
 def generate_deck():
 
     suits = ["D", "C", "H", "S"]
     ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
-    cards = []
+    deck = []
 
-    for i in suits:
-        for j in ranks:
-            cards.append([i,j])
-
-    return cards
-
-# shuffle deck
-
-def shuffle_deck(deck):
+    for i in ranks:
+        for j in suits:
+            deck.append([i, j])
 
     random.shuffle(deck)
 
-# deal card(s)
+    return deck
 
-def deal(deck, player_hand, number_of_cards):
-    
+
+def deal(deck, number_of_cards):
+
+    dealt_cards = []
+
     for i in range(number_of_cards):
-        player_hand.append(deck[len(deck) - 1])
-        deck.pop(len(deck) - 1)
-    
-# calculate hand value
+        dealt_cards.append(deck[-1])
+        deck.pop(-1)
 
-def hand_value(hand):
+    return dealt_cards
 
-    value = 0
-    
+
+def calculate_hand(hand):
+
+    card_values = {
+        "J": 10,
+        "Q": 10,
+        "K": 10,
+        "A": [1, 11]
+    }
+
+    hand_value = 0
+
     for card in hand:
-
-        rank = card[1]
-    
-        match rank:
-
-            case "2":
-                value += 2
-
-            case "3":
-                value += 3
-
-            case "4":
-                value += 4
-            
-            case "5":
-                value += 5
-
-            case "6":
-                value += 6
-
-            case "7":
-                value += 7
-
-            case "8":
-                value += 8
-
-            case "9":
-                value += 9
-
-            case "10":
-                value += 10
-
-            case "J":
-                value += 10
-            
-            case "Q":
-                value += 10
-            
-            case "K":
-                value += 10
-
-            case "A":
-                if value <= 10:
-                    value += 11
+        if card[0] in card_values:
+            if card[0] == "A":
+                if hand_value > 10:
+                    hand_value += card_values["A"][0]
                 else:
-                    value += 1
-        
-            case _:
-                value += 0
+                    hand_value += card_values["A"][1]
+            else:
+                hand_value += card_values[card[0]]
+        else:
+            hand_value += int(card[0])
 
-    return value
+    return hand_value
 
-# test(multi-line comment out)   
 
-"""
-def test():
+def game():
+
     deck = generate_deck()
-    shuffle_deck(deck)
-    player_hand = []
-    deal(deck, player_hand, 2)
-    print(player_hand)
-    print(hand_value(player_hand))
+    player_hand = deal(deck, 2)
+    dealer_hand = deal(deck, 2)
+    player_value = calculate_hand(player_hand)
+    dealer_value = calculate_hand(dealer_hand)
 
-test()
-"""
+    player_bust = False
+    dealer_bust = False
+    player_21 = False
+    dealer_21 = False
+
+    if player_value == 21:
+        player_21 = True
+    if dealer_21 == 21:
+        dealer_21 = True
+
+    print(f"Your Hand: {player_hand}")
+    print(f"Dealer's First Card: {dealer_hand[0]}")
+
+    while not player_bust and not player_21:
+
+        player_move = input("Type 'H' to hit, Type 'S' to stand: ").upper()
+
+        if player_move == "H":
+
+            player_hand += deal(deck, 1)
+            player_value = calculate_hand(player_hand)
+            print(f"Your Hand: {player_hand}")
+
+        else:
+            break
+
+        if player_value > 21:
+            player_bust = True
+            print("PLAYER BUST")
+        elif player_value == 21:
+            player_21 = True
+
+    print(f"Dealer's Hand: {dealer_hand}")
+
+    while not dealer_bust and not player_bust and not dealer_21:
+
+        if dealer_value == 21:
+            dealer_21 = True
+
+        elif dealer_value < 22 and dealer_value > player_value:
+            break
+
+        elif dealer_value < 22:
+            dealer_hand += deal(deck, 1)
+            dealer_value = calculate_hand(dealer_hand)
+            print(f"Dealer's Hand: {dealer_hand}")
+            if dealer_value < 22 and dealer_value > player_value:
+                break
+
+        else:
+            dealer_bust = True
+            print("DEALER BUST")
+
+    if player_bust == False and dealer_bust == False:
+
+        if player_value < 21:
+            player_difference = 21 - player_value
+        else:
+            player_difference = player_value % 21
+
+        if dealer_value < 21:
+            dealer_difference = 21 - dealer_value
+        else:
+            dealer_difference = dealer_value % 21
+
+        if player_value == dealer_value:
+            print("PUSH")
+        elif player_difference < dealer_difference:
+            print("YOU WIN")
+        else:
+            print("DEALER WINS")
+
+
+game()
