@@ -1,5 +1,6 @@
 import random
 
+
 def generate_deck():
 
     suits = ["D", "C", "H", "S"]
@@ -37,8 +38,17 @@ def calculate_hand(hand):
 
     hand_value = 0
 
+# Appends all aces to the end of list 
+
+    temp_hand = hand.copy()
+
+    for card in temp_hand:
+        if card[0] == "A":
+            hand.append(hand.pop(hand.index(card)))
+
     for card in hand:
         if card[0] in card_values:
+
             if card[0] == "A":
                 if hand_value > 10:
                     hand_value += card_values["A"][0]
@@ -46,10 +56,28 @@ def calculate_hand(hand):
                     hand_value += card_values["A"][1]
             else:
                 hand_value += card_values[card[0]]
+
         else:
             hand_value += int(card[0])
 
     return hand_value
+
+# Checks if hand is soft 17
+
+def is_soft17(hand):
+    if calculate_hand(hand) == 17:
+
+        for i in range(len(hand)):
+            if hand[i][0] == "A":
+                hand[i][0] = "1"
+        
+        if calculate_hand(hand) == 7:
+            return True
+        else:
+            return False
+     
+    else:
+        return False
 
 
 def game():
@@ -70,12 +98,15 @@ def game():
     if dealer_21 == 21:
         dealer_21 = True
 
+# Player Sequence
+
     print(f"Your Hand: {player_hand}")
     print(f"Dealer's First Card: {dealer_hand[0]}")
 
     while not player_bust and not player_21:
 
         player_move = input("Type 'H' to hit, Type 'S' to stand: ").upper()
+        print()
 
         if player_move == "H":
 
@@ -92,26 +123,28 @@ def game():
         elif player_value == 21:
             player_21 = True
 
-    print(f"Dealer's Hand: {dealer_hand}")
+    print(f"Dealer's Hand: {dealer_hand}")  
+
+# Dealer Sequence
 
     while not dealer_bust and not player_bust and not dealer_21:
 
-        if dealer_value == 21:
+        if dealer_value > 21:
+            dealer_bust = True
+            print("DEALER BUST")
+        
+        elif dealer_value == 21:
             dealer_21 = True
 
-        elif dealer_value < 22 and dealer_value > player_value:
-            break
-
-        elif dealer_value < 22:
+        elif dealer_value < 17 or is_soft17(dealer_hand):
             dealer_hand += deal(deck, 1)
             dealer_value = calculate_hand(dealer_hand)
             print(f"Dealer's Hand: {dealer_hand}")
-            if dealer_value < 22 and dealer_value > player_value:
-                break
 
         else:
-            dealer_bust = True
-            print("DEALER BUST")
+            break
+
+# Win Conditions
 
     if player_bust == False and dealer_bust == False:
 
@@ -131,6 +164,5 @@ def game():
             print("YOU WIN")
         else:
             print("DEALER WINS")
-
 
 game()
